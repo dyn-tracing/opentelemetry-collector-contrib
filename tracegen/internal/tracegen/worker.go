@@ -120,6 +120,108 @@ func (w worker) getRootAttribute(servicesIndex int) (string, string, string, str
 
 
 func (w worker) simulateTraces() {
+    //Read the file named sampleTrace.json in the same directory and extract the tree of services
+    //The serviceList contains all services with its spanID, parentID, serviceType, and processType.
+    //The serviceChildList contains the lists of children services corresponding to the index in serviceList.
+    content, err := os.ReadFile("sampleTrace.json")
+    if err != nil {
+        panic(err)
+    }
+
+    serviceList := make([]Service, 0)
+
+    var all map[string]interface{}
+    err = json.Unmarshal([]byte(content), &all)
+    if err != nil {
+        panic(err)
+    }
+
+    dataList, ok := all["data"].([]interface{})
+    if !ok {
+        panic("dataList is not a list!")
+    }
+
+    for i := 0; i < len(dataList); i++ {
+        dataMap, ok1 := dataList[i].(map[string]interface{})
+        if !ok1 {
+            panic("dataMap is not a map!")
+        }
+        spanList, ok2 := dataMap["spans"].([]interface{})
+        if !ok2 {
+            panic("spanList is not a list!")
+        }
+        processMap, ok3 := dataMap["processes"].(map[string]interface{})
+        if !ok3 {
+            panic("processMap is not a map!")
+        }
+
+        for j := 0; j < len(spanList); j++ {
+            spanMap, ok1 := spanList[j].(map[string]interface{})
+            if !ok1 {
+                panic("spanMap is not a map!")
+            }
+            spanID, ok2 := spanMap["spanID"]
+            if !ok2 {
+                panic("spanMap[spanID] is not a string!")
+            }
+            var parentID string
+            referenceList, ok3 := spanMap["references"].([]interface{})
+            if !ok3 {
+                panic("referenceList is not a list!")
+            }
+            if len(referenceList) > 0 {
+                referenceMap, ok4 := referenceList[0].(map[string]interface{})
+                if !ok4 {
+                    panic("referenceMap is not a map!")
+                }
+                parentID = referenceMap["spanID"].(string)
+            }
+            //todo: get servicetype
+            var serviceType string
+            tagList, ok5 := spanMap["tags"].([]interface{})
+            if !ok5 {
+                panic("tagList is not a list!")
+            }
+            for k := 0; k < len(tagList); k++ {
+                tagMap, ok6 := tagList[k].(map[string]interface{})
+                if !ok6 {
+                    panic("tagMap is not a map!")
+                }
+                if tagMap["key"] == "rpc.service" {
+                    serviceType = tagMap["value"].(string)
+                    break
+                }
+            }
+            processTypeMap, ok7 := processMap[spanMap["processID"].(string)].(map[string]interface{})
+            if !ok7 {
+                panic("processTypeMap is not a map!")
+            }
+            processType := processTypeMap["serviceName"].(string)
+
+            service := Service{
+                spanID: spanID.(string),
+	            parentID: parentID,
+	            serviceType: serviceType,
+	            processType: processType,
+            }
+            serviceList = append(serviceList, service)
+        }
+    }
+
+    serviceChildList := make([][]int, len(serviceList))
+    
+    for i := range serviceList {
+        parent := serviceList[i].parentID
+        if ( parent != ""){
+            for j := range serviceList {
+                if(serviceList[j].spanID == parent){
+                    serviceChildList[j] = append(serviceChildList[j],i)
+                    break
+                }
+            }
+        }
+    }
+    
     // set up all tracers
     tracers := w.setUpTracers()
     limiter := rate.NewLimiter(w.limitPerSecond, 1)
