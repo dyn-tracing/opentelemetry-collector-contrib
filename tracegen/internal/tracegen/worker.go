@@ -28,6 +28,9 @@ import (
         "go.opentelemetry.io/otel/trace"
         "go.uber.org/zap"
         "golang.org/x/time/rate"
+        //for load generator
+        "encoding/json"
+        "os"
 )
 
 type worker struct {
@@ -41,6 +44,12 @@ type worker struct {
         traceTypes        int
         serviceNames      [12]string
     tracerProviders  []*sdktrace.TracerProvider
+}
+//load generator
+type Service struct {
+	spanID      string
+	parentID    string
+	processType string
 }
 
 const (
@@ -120,10 +129,39 @@ func (w worker) getRootAttribute(servicesIndex int) (string, string, string, str
 
 
 func (w worker) simulateTraces() {
-    //Read the file named sampleTrace.json in the same directory and extract the tree of services
-    //The serviceList contains all services with its spanID, parentID, serviceType, and processType.
-    //The serviceChildList contains the lists of children services corresponding to the index in serviceList.
-    content, err := os.ReadFile("sampleTrace.json")
+    // set up all tracers
+    tracers := w.setUpTracers()
+    limiter := rate.NewLimiter(w.limitPerSecond, 1)
+    var i int
+    for atomic.LoadUint32(w.running) == 1 {
+        t := i%w.traceTypes
+        if t == 0 {
+            w.simulateTrace1(limiter, tracers)
+        } else if t == 1 {
+            w.simulateTrace2(limiter, tracers)
+        } else if t == 2 {
+            w.simulateTrace3(limiter, tracers)
+        } else if t == 3 {
+            w.simulateTrace4(limiter, tracers)
+        } else if t == 4 {
+            w.simulateTrace5(limiter, tracers)
+        }
+        i++
+        if w.numTraces != 0 {
+                if i >= w.numTraces {
+                        break
+                }
+        }
+    }
+    w.logger.Info("traces generated", zap.Int("traces", i))
+    w.wg.Done()
+}
+
+//for generalized load generator
+//@return: service list - list of services, each being a Service struct containing its spanID, parentID, and processType.
+//@return: service child list - lists of children services of the service at the corresponding index in serviceList.
+func extractSpans(fileName string) ([]Service, [][]int) {
+    content, err := os.ReadFile(fileName)
     if err != nil {
         panic(err)
     }
@@ -176,22 +214,7 @@ func (w worker) simulateTraces() {
                 }
                 parentID = referenceMap["spanID"].(string)
             }
-            //todo: get servicetype
-            var serviceType string
-            tagList, ok5 := spanMap["tags"].([]interface{})
-            if !ok5 {
-                panic("tagList is not a list!")
-            }
-            for k := 0; k < len(tagList); k++ {
-                tagMap, ok6 := tagList[k].(map[string]interface{})
-                if !ok6 {
-                    panic("tagMap is not a map!")
-                }
-                if tagMap["key"] == "rpc.service" {
-                    serviceType = tagMap["value"].(string)
-                    break
-                }
-            }
+
             processTypeMap, ok7 := processMap[spanMap["processID"].(string)].(map[string]interface{})
             if !ok7 {
                 panic("processTypeMap is not a map!")
@@ -201,7 +224,6 @@ func (w worker) simulateTraces() {
             service := Service{
                 spanID: spanID.(string),
 	            parentID: parentID,
-	            serviceType: serviceType,
 	            processType: processType,
             }
             serviceList = append(serviceList, service)
@@ -221,35 +243,9 @@ func (w worker) simulateTraces() {
             }
         }
     }
-    
-    // set up all tracers
-    tracers := w.setUpTracers()
-    limiter := rate.NewLimiter(w.limitPerSecond, 1)
-    var i int
-    for atomic.LoadUint32(w.running) == 1 {
-        t := i%w.traceTypes
-        if t == 0 {
-            w.simulateTrace1(limiter, tracers)
-        } else if t == 1 {
-            w.simulateTrace2(limiter, tracers)
-        } else if t == 2 {
-            w.simulateTrace3(limiter, tracers)
-        } else if t == 3 {
-            w.simulateTrace4(limiter, tracers)
-        } else if t == 4 {
-            w.simulateTrace5(limiter, tracers)
-        }
-        i++
-        if w.numTraces != 0 {
-                if i >= w.numTraces {
-                        break
-                }
-        }
-    }
-    w.logger.Info("traces generated", zap.Int("traces", i))
-    w.wg.Done()
-}
 
+    return serviceList, serviceChildList
+}
 
 func (w worker) simulateTrace1(limiter *rate.Limiter, tracers []trace.Tracer) {
     spanKind, serviceName, httpStatusCode, httpUrl := w.getRootAttribute(0)
