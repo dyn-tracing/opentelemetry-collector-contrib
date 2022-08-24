@@ -1,0 +1,242 @@
+{
+    "data": [
+        {
+            "traceID": "c2998e618ec3cd575a88657732ea3d5d",
+            "spans": [
+                {
+                    "traceID": "c2998e618ec3cd575a88657732ea3d5d",
+                    "spanID": "0",
+                    "operationName": "lets-go",
+                    "references": [],
+                    "startTime": 1658344350141690,
+                    "duration": 199244,
+                    "tags": [
+                        {
+                            "key": "otel.library.name",
+                            "type": "string",
+                            "value": "tracegen\u0000"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "client"
+                        },
+                        {
+                            "key": "service.name",
+                            "type": "string",
+                            "value": "serviceName1"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://metadata.google.internal/computeMetadata/v1/instance/attributes/cluster-name(fakeurl)"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "internal"
+                        },
+                        {
+                            "key": "internal.span.format",
+                            "type": "string",
+                            "value": "proto"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p1",
+                    "warnings": null
+                },
+                {
+                    "traceID": "c2998e618ec3cd575a88657732ea3d5d",
+                    "spanID": "1",
+                    "operationName": "1-1",
+                    "references": [
+                        {
+                            "refType": "CHILD_OF",
+                            "traceID": "c2998e618ec3cd575a88657732ea3d5d",
+                            "spanID": "0"
+                        }
+                    ],
+                    "startTime": 1658344350141731,
+                    "duration": 100027,
+                    "tags": [
+                        {
+                            "key": "otel.library.name",
+                            "type": "string",
+                            "value": "tracegen\u0007"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "server"
+                        },
+                        {
+                            "key": "service.name",
+                            "type": "string",
+                            "value": "serviceName2"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://metadata.google.internal/computeMetadata/v1/instance/attributes/cluster-name(fakeurl)"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "internal"
+                        },
+                        {
+                            "key": "internal.span.format",
+                            "type": "string",
+                            "value": "proto"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p2",
+                    "warnings": null
+                },
+                {
+                    "traceID": "c2998e618ec3cd575a88657732ea3d5d",
+                    "spanID": "2",
+                    "operationName": "1",
+                    "references": [
+                        {
+                            "refType": "CHILD_OF",
+                            "traceID": "c2998e618ec3cd575a88657732ea3d5d",
+                            "spanID": "1"
+                        }
+                    ],
+                    "startTime": 1658344350141712,
+                    "duration": 100001,
+                    "tags": [
+                        {
+                            "key": "otel.library.name",
+                            "type": "string",
+                            "value": "tracegen\u0000"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "client"
+                        },
+                        {
+                            "key": "service.name",
+                            "type": "string",
+                            "value": "serviceName3"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://metadata.google.internal/computeMetadata/v1/instance/attributes/cluster-name(fakeurl)"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "internal"
+                        },
+                        {
+                            "key": "internal.span.format",
+                            "type": "string",
+                            "value": "proto"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p3",
+                    "warnings": null
+                },
+                {
+                    "traceID": "c2998e618ec3cd575a88657732ea3d5d",
+                    "spanID": "3",
+                    "operationName": "4",
+                    "references": [
+                        {
+                            "refType": "CHILD_OF",
+                            "traceID": "c2998e618ec3cd575a88657732ea3d5d",
+                            "spanID": "0"
+                        }
+                    ],
+                    "startTime": 1658344350141773,
+                    "duration": 100001,
+                    "tags": [
+                        {
+                            "key": "otel.library.name",
+                            "type": "string",
+                            "value": "tracegen\u0000"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "server"
+                        },
+                        {
+                            "key": "service.name",
+                            "type": "string",
+                            "value": "serviceName4"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://metadata.google.internal/computeMetadata/v1/instance/attributes/cluster-name(fakeurl)"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "internal"
+                        },
+                        {
+                            "key": "internal.span.format",
+                            "type": "string",
+                            "value": "proto"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p4",
+                    "warnings": null
+                }
+            ],
+            "processes": {
+                "p1": {
+                    "serviceName": "processName1",
+                    "tags": []
+                },
+                "p2": {
+                    "serviceName": "processName2",
+                    "tags": []
+                },
+                "p3": {
+                    "serviceName": "processName3",
+                    "tags": []
+                },
+                "p4": {
+                    "serviceName": "processName4",
+                    "tags": []
+                }
+            },
+            "warnings": null
+        }
+    ],
+    "total": 0,
+    "limit": 0,
+    "offset": 0,
+    "errors": null
+}
